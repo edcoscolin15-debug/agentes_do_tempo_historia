@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gincana Histórica: Linha do Tempo</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #d35400;
+            --bg: #f4f6f7;
+            --card-bg: #ffffff;
+            --text: #34495e;
+            --success: #27ae60;
+            --error: #c0392b;
+            --neutral: #7f8c8d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            max-width: 1000px; 
+            width: 100%;
+            background: var(--card-bg);
+            padding: 60px 20px 20px 20px; /* Espaço extra no topo para os botões absolute */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            position: relative; /* Necessário para ancorar os botões do topo */
+        }
+
+        .narrow-wrap {
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* --- CLASSE PARA BOTÕES NO CANTO SUPERIOR ESQUERDO --- */
+        .btn-top-left {
+            position: absolute !important;
+            top: 15px !important;
+            left: 15px !important;
+            margin: 0 !important;
+            z-index: 1000 !important;
+            width: auto !important;
+            padding: 8px 15px !important;
+            font-size: 0.9rem !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .menu-title {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+        }
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .file-box {
+            background: #eef2f3;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed var(--neutral);
+            text-align: center;
+            margin-top: 20px;
+        }
+        .file-input-label {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .file-input-label:hover { background: #1a252f; }
+        input[type="file"] { display: none; }
+
+        .editor-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .select-box {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #bdc3c7;
+            font-size: 1rem;
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .form-group label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+        .form-control {
+            padding: 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .event-editor-card {
+            background: #f8f9fa;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .event-editor-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        .editor-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .alert-info-box {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .game-layout {
+            display: flex;
+            flex-direction: column; 
+            gap: 20px;
+        }
+        
+        .game-sidebar {
+            background: #eef2f3;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .game-main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        @media (min-width: 768px) {
+            .game-layout {
+                flex-direction: row; 
+                align-items: flex-start;
+            }
+            .game-sidebar {
+                width: 280px;
+                flex-shrink: 0;
+            }
+        }
+
+        .status-direita {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .timer-box {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--error);
+            background: #fceae9;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--error);
+            white-space: nowrap;
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+        .vidas-box { font-size: 1.5rem; letter-spacing: 2px; }
+        
+        .placar-container { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-bottom: 20px; }
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #bdc3c7;
+        }
+        .time-nome { font-weight: bold; font-size: 0.95rem; }
+        
+        .score-buttons { display: flex; gap: 5px; }
+        .btn-ponto {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-menos {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .questao-header {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .pergunta-texto { font-size: 1.1rem; font-weight: 500; margin: 0 0 10px 0; line-height: 1.4; }
+        .badge-dificuldade {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .fase-indicador { float: right; font-size: 0.85rem; opacity: 0.8; font-weight: bold; }
+        .timeline-zone { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; min-height: 150px; }
+
+        .timeline-wrapper {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+        
+        .timeline-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            width: 35px;
+            padding: 10px 0;
+            color: var(--neutral);
+        }
+        
+        .indicator-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        
+        .indicator-line {
+            flex: 1;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+            border-radius: 2px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .indicator-line::after {
+            content: '▼';
+            position: absolute;
+            bottom: -10px;
+            left: -3.5px;
+            color: var(--accent);
+            font-size: 11px;
+        }
+        
+        .event-card {
+            background: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: grab;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .event-card:active { cursor: grabbing; }
+        .event-card.dragging { opacity: 0.4; background: #e8f4f8; border-style: dashed; }
+        .event-title { font-weight: bold; color: var(--primary); font-size: 0.95rem; }
+        .event-desc { font-size: 0.85rem; color: #555; margin-top: 2px; }
+        .ano-revelado {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .action-buttons { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px; }
+        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button.btn-main {
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-check { background-color: var(--primary); }
+        .btn-check:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        .btn-nav { background-color: var(--neutral); }
+        .btn-nav:disabled { background-color: #d5dbdb; cursor: not-allowed; }
+        .btn-orange { background-color: var(--accent); }
+        .btn-green { background-color: var(--success); }
+        
+        #feedback { text-align: center; margin-top: 10px; font-weight: bold; font-size: 1.05rem; min-height: 25px; line-height: 1.4; }
+        .success-border { border-color: var(--success) !important; background-color: #e8f8f5 !important;}
+        .error-border { border-color: var(--error) !important; background-color: #fceae9 !important;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div id="screen-menu" class="screen active">
+        <div class="narrow-wrap">
+            <h2 class="menu-title">⏱️ Agentes do Tempo <br><small style="font-size: 1rem; color: var(--neutral)">Painel de Controle</small></h2>
+            
+            <div class="menu-buttons">
+                <button class="btn-main btn-green" onclick="mudarTela('screen-intro')">🎮 Jogar</button>
+                <button class="btn-main btn-orange" onclick="abrirEditor()">🛠️ Criar ou Alterar Desafios</button>
+                
+                <div style="background: #eef2f3; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 6px; margin-top: 5px;">
+                    <label style="font-size: 0.85rem; font-weight: bold; color: var(--primary); text-align: left;">📥 Exportar Dados para Backup:</label>
+                    <select id="select-exportar-conteudo" class="select-box" style="padding: 6px; font-size: 0.9rem;"></select>
+                    <button class="btn-main btn-check" style="padding: 10px; font-size: 0.95rem;" onclick="exportarBancoJSON()">Gerar Arquivo de Jogo (.json)</button>
+                </div>
+            </div>
+
+            <div class="file-box">
+                <span style="font-size: 0.9rem; color: var(--text);">Possui um arquivo salvo anteriormente?</span><br>
+                <label for="import-file" class="file-input-label">📤 Importar Arquivo de Jogo</label>
+                <input type="file" id="import-file" accept=".json" onchange="importarBancoJSON(event)">
+                <div id="file-status" style="font-size: 0.8rem; margin-top: 8px; color: var(--success)"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="screen-intro" class="screen">
+        <button class="btn-main btn-nav btn-top-left" onclick="voltarParaMenu()">⬅️ Voltar</button>
+        
+        <div class="narrow-wrap">
+            <h2 class="menu-title" style="margin-bottom: 20px;">⏳ Agentes do Tempo: A Missão</h2>
+            
+            <div style="background: #e8f4f8; padding: 20px; border-radius: 8px; border: 1px solid #3498db; margin-bottom: 20px; color: var(--primary); line-height: 1.6;">
+                <p style="margin-top: 0; text-align: justify;"><strong>Agentes, atenção!</strong> A continuidade do tempo está quebrado e a nossa linha histórica corre perigo. Vocês foram convocados por serem os melhores especialistas em História e a sua missão é clara: precisam restaurar a ordem, alinhando os fatos exatamente como eles ocorreram. O destino do passado está nas mãos de vocês!</p>
+                
+                <h3 style="color: var(--accent); margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px;">📜 Regras da Missão</h3>
+                <ul style="margin: 0; padding-left: 20px; text-align: left; font-size: 0.95rem;">
+                    <li style="margin-bottom: 8px;"><strong>Organização Cronológica:</strong> Na zona de desafio, os cards dos eventos devem ser ordenados do <strong>mais antigo (topo)</strong> para o <strong>mais recente (base)</strong>.</li>
+                    <li style="margin-bottom: 8px;"><strong>O Limite do Agente:</strong> Cada time dispõe de <strong>60 segundos</strong> e <strong>2 corações (vidas)</strong> para validar a resposta.</li>
+                    <li style="margin-bottom: 8px;"><strong>Fim de Jogo:</strong> Se o tempo esgotar ou as vidas acabarem, o sistema é travado. Os cards corretos permanecerão travados em suas posições exatas.</li>
+                    <li><strong>Recompensa Parcial:</strong> O professor irá pontuar manualmente o time de acordo com os cards posicionados corretamente.</li>
+                </ul>
+            </div>
+
+            <button class="btn-main btn-green" style="font-size: 1.1rem; padding: 15px;" onclick="abrirSelecaoConteudo()">🚀 Aceitar Missão e Escolher Tema</button>
+        </div>
+    </div>
+
+
+    <div id="screen-selecao" class="screen">
+        <button class="btn-main btn-nav btn-top-left" onclick="mudarTela('screen-intro')">⬅️ Voltar</button>
+
+        <div class="narrow-wrap">
+            <h2 class="menu-title">📚 Escolha o Conteúdo<br><small style="font-size: 0.9rem; color: var(--neutral)">Selecione o tema da missão de hoje</small></h2>
+            
+            <div id="container-botoes-conteudo" class="menu-buttons"></div>
+        </div>
+    </div>
+
+
+    <div id="screen-game" class="screen">
+        <button class="btn-main btn-nav btn-top-left" style="background-color: #34495e;" onclick="mudarTela('screen-selecao')">📚 Trocar Missão</button>
+
+        <div class="game-layout">
+            
+            <div class="game-sidebar">
+                <h3 style="margin-top: 0; color: var(--primary); text-align: center; border-bottom: 2px solid #bdc3c7; padding-bottom: 10px;">Status da Missão</h3>
+                
+                <div class="status-direita">
+                    <div class="vidas-box" id="vidas-campo">❤️❤️</div>
+                    <div class="timer-box" id="timer">⏱️ 60s</div>
+                </div>
+
+                <div class="placar-container">
+                    <div class="time-row">
+                        <span class="time-nome">Time A: <span id="pts-A">0</span></span>
+                        <div class="score-buttons">
+                            <button class="btn-menos" onclick="diminuirPontos('A')">-Pts</button>
+                            <button class="btn-ponto" onclick="adicionarPontos('A')">+Pts</button>
+                        </div>
+                    </div>
+                    <div class="time-row">
+                        <span class="time-nome">Time B: <span id="pts-B">0</span></span>
+                        <div class="score-buttons">
+                            <button class="btn-menos" onclick="diminuirPontos('B')">-Pts</button>
+                            <button class="btn-ponto" onclick="adicionarPontos('B')">+Pts</button>
+                        </div>
+                    </div>
+                    <div class="time-row">
+                        <span class="time-nome">Time C: <span id="pts-C">0</span></span>
+                        <div class="score-buttons">
+                            <button class="btn-menos" onclick="diminuirPontos('C')">-Pts</button>
+                            <button class="btn-ponto" onclick="adicionarPontos('C')">+Pts</button>
+                        </div>
+                    </div>
+                    <div class="time-row">
+                        <span class="time-nome">Time D: <span id="pts-D">0</span></span>
+                        <div class="score-buttons">
+                            <button class="btn-menos" onclick="diminuirPontos('D')">-Pts</button>
+                            <button class="btn-ponto" onclick="adicionarPontos('D')">+Pts</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: auto;">
+                    <div class="nav-buttons">
+                        <button class="btn-main btn-nav" id="btn-voltar" onclick="mudarFase(-1)">⬅️ Anterior</button>
+                        <button class="btn-main btn-nav" id="btn-avancar" onclick="mudarFase(1)">Avançar ➡️</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-main">
+                <div class="questao-header">
+                    <span class="fase-indicador" id="fase-id">1/5</span>
+                    <p class="pergunta-texto" id="pergunta-campo">Carregando pergunta...</p>
+                    <span class="badge-dificuldade" id="dificuldade-campo">Fácil</span>
+                </div>
+                
+                <div class="timeline-wrapper">
+                    <div class="timeline-zone" id="timeline" style="flex: 1; margin-bottom: 0;"></div>
+                    
+                    <div class="timeline-indicator">
+                        <span class="indicator-label" style="color: var(--primary);">Antes</span>
+                        <div class="indicator-line"></div>
+                        <span class="indicator-label" style="color: var(--accent);">Depois</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-main btn-check" id="btn-validar" onclick="verificarOrdem()">Verificar Resposta</button>
+                    <button class="btn-main" id="btn-gabarito" style="background-color: #8e44ad; display: none;" onclick="mostrarGabarito()">👁️ Mostrar Ordem Correta (Gabarito)</button>
+                </div>
+
+                <div id="feedback"></div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div id="screen-editor" class="screen">
+        <button class="btn-main btn-nav btn-top-left" onclick="voltarParaMenu()">⬅️ Voltar</button>
+
+        <div class="narrow-wrap">
+            <h3 style="margin-top: 0; color: var(--primary);">🛠️ Editor de Desafios</h3>
+            
+            <div class="editor-layout">
+                
+                <div style="background: #e8f4f8; padding: 12px; border-radius: 8px; border: 1px solid #3498db;">
+                    <label style="color: var(--primary); font-weight: bold; font-size: 0.9rem;">🆕 Opção: Criar Novo Conteúdo (Tema)</label>
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <input type="text" id="novo-conteudo-nome" class="form-control" style="flex: 1; margin: 0;" placeholder="Ex: Brasil Colônia, Feudalismo">
+                        <button class="btn-main btn-green" style="padding: 8px 15px; width: auto; white-space: nowrap;" onclick="criarNovoConteudoLista()">Criar Tema</button>
+                    </div>
+                </div>
+
+                <div style="background: #eef2f3; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label style="color: var(--accent);">Filtrar por Conteúdo/Tema para trabalhar:</label>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="select-conteudo-filtro-editor" class="select-box" style="flex: 1;" onchange="atualizarSelectEditor()"></select>
+                            <button class="btn-main" style="background-color: var(--error); width: auto; padding: 8px 12px; font-size: 0.9rem;" title="Excluir o tema selecionado e todos os seus desafios" onclick="deletarConteudoInteiro()">🗑️ Excluir Tema</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Selecionar o Desafio (Fase):</label>
+                        <select id="select-fase-editor" class="select-box" onchange="carregarFaseNoFormulario()"></select>
+                    </div>
+                </div>
+
+                <button class="btn-main btn-green" style="padding: 8px;" onclick="prepararNovaFase()">➕ Adicionar Nova Fase do Zero</button>
+                <hr style="width:100%; border:0; border-top:1px solid #bdc3c7; margin: 5px 0;">
+
+                <div class="editor-scroll">
+                    <div class="form-group">
+                        <label>Conteúdo / Tema Histórico deste Desafio:</label>
+                        <select id="edit-conteudo" class="select-box"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Enunciado / Pergunta Contexto:</label>
+                        <textarea id="edit-pergunta" class="form-control" rows="3" placeholder="Ex: A crise na França era terrível..."></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Nível:</label>
+                            <select id="edit-nivel" class="select-box">
+                                <option value="Fácil">Fácil</option>
+                                <option value="Médio">Médio</option>
+                                <option value="Difícil">Difícil</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Pontos por acerto:</label>
+                            <input type="number" id="edit-pontos" class="form-control" min="1" max="10" value="1">
+                        </div>
+                    </div>
+
+                    <div class="alert-info-box">
+                        ⚠️ <strong>Atenção:</strong> Insira os 4 eventos abaixo obrigatoriamente na <strong>ORDEM CRONOLÓGICA CORRETA</strong>. O sistema irá embaralhá-los no jogo.
+                    </div>
+
+                    <div id="eventos-editor-container"></div>
+                </div>
+
+                <div class="action-buttons" style="margin-top: 10px;">
+                    <button class="btn-main btn-check" onclick="salvarAlteracoesFase()">💾 Salvar Alterações nesta Fase</button>
+                    <button class="btn-main btn-orange" style="background-color: var(--error);" onclick="deletarFaseAtual()">🗑️ Excluir esta Fase</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // BANCO DE DESAFIOS PADRÃO (Com pontos alterados para 1)
+    let bancoFases = [
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "A crise na França era terrível e o povo passava fome. Ordene os acontecimentos que marcaram o estopim e o início da Revolução Francesa:",
+            nivel: "Fácil",
+            pontos: 1,
+            eventos: [
+                { id: "rf1_1", ano: 1789, titulo: "Assembleia dos Estados Gerais", desc: "O rei Luís XVI convoca os três grupos sociais para discutir a crise econômica.", ordem: 0 },
+                { id: "rf1_2", ano: 1789, titulo: "Queda da Bastilha", desc: "O povo de Paris invade a prisão-símbolo do absolutismo; marco inicial da Revolução.", ordem: 1 },
+                { id: "rf1_3", ano: 1789, titulo: "Declaração dos Direitos", desc: "É publicado o documento defendendo que 'todos os homens nascem livres e iguais'.", ordem: 2 },
+                { id: "rf1_4", ano: 1791, titulo: "Primeira Constituição", desc: "A França ganha suas primeiras leis escritas, limitando os poderes do Rei.", ordem: 3 }
+            ]
+        },
+        {
+            conteudo: "Revolução Francesa",
+            pergunta: "A Revolução ficou radical! Organize os fatos do período da República Francesa, conhecido pelas disputas entre Girondinos e Jacobinos:",
+            nivel: "Médio",
+            pontos: 1,
+            eventos: [
+                { id: "rf2_1", ano: 1792, titulo: "Proclamação da República", desc: "A monarquia é derrubada e os revolucionários assumem o controle total do país.", ordem: 0 },
+                { id: "rf2_2", ano: 1793, titulo: "Execução do Rei Luís XVI", desc: "Acusado de traição contra o próprio povo, o rei é condenado à guilhotina.", ordem: 1 },
+                { id: "rf2_3", ano: 1793, titulo: "O Período do Terror", desc: "Robespierre lidera os jacobinos e persegue qualquer um considerado inimigo da Revolução.", ordem: 2 },
+                { id: "rf2_4", ano: 1794, titulo: "A Reação Termidoriana", desc: "Robespierre é tirado do poder e os girondinos (alta burguesia) assumem o governo.", ordem: 3 }
+            ]
+        },
+        {
+            conteudo: "Era Napoleônica",
+            pergunta: "Napoleão Bonaparte surgiu como o salvador da pátria. Alinhe os passos da sua meteórica subida ao poder político na França:",
+            nivel: "Médio",
+            pontos: 1,
+            eventos: [
+                { id: "en1_1", ano: 1799, titulo: "Golpe do 18 de Brumário", desc: "Com apoio da burguesia e do exército, Napoleão derruba o Diretório e assume o governo.", ordem: 0 },
+                { id: "en1_2", ano: 1799, titulo: "O Consulado", desc: "Instaura-se um governo de três cônsules, onde Napoleão era o líder principal.", ordem: 1 },
+                { id: "en1_3", ano: 1804, titulo: "Código Civil Napoleônico", desc: "Criou leis que garantiam a igualdade civil e protegiam o direito à propriedade privada.", ordem: 2 },
+                { id: "en1_4", ano: 1804, titulo: "Coroação como Imperador", desc: "Em uma grande cerimônia, Napoleão retira a coroa das mãos do Papa e coroa a si mesmo.", ordem: 3 }
+            ]
+        },
+        {
+            conteudo: "Grandes Navegações",
+            pergunta: "O expansionismo marítimo transformou o mapa mundi. Organize a ordem cronológica dos pioneirismos das navegações portuguesas e espanholas:",
+            nivel: "Médio",
+            pontos: 1,
+            eventos: [
+                { id: "gn1_1", ano: 1415, titulo: "Conquista de Ceuta", desc: "Marco inicial da expansão ultramarina portuguesa no norte da África.", ordem: 0 },
+                { id: "gn1_2", ano: 1488, titulo: "Cabo das Tormentas", desc: "Bartolomeu Dias consegue contornar o extremo sul do continente africano.", ordem: 1 },
+                { id: "gn1_3", ano: 1492, titulo: "Chegada à América", desc: "Financiado pela Espanha, Cristóvão Colombo chega às ilhas do Caribe.", ordem: 2 },
+                { id: "gn1_4", ano: 1498, titulo: "Chegada às Índias", desc: "Vasco da Gama completa a rota contornando a África e atinge Calicute.", ordem: 3 }
+            ]
+        }
+    ];
+
+    let listaConteudos = [];
+    let fasesDoJogoAtual = [];
+    let faseAtual = 0;
+    let tempoRestante = 60;
+    let cronometro;
+    let jogoAtivo = true;
+    let vidas = 2;
+    const placar = { A: 0, B: 0, C: 0, D: 0 };
+
+    const timeline = document.getElementById('timeline');
+    const feedback = document.getElementById('feedback');
+    const timerDisplay = document.getElementById('timer');
+    const vidasDisplay = document.getElementById('vidas-campo');
+    const btnValidar = document.getElementById('btn-validar');
+
+    function inicializarConteudos() {
+        const temasDoBanco = [...new Set(bancoFases.map(fase => fase.conteudo || "Geral"))];
+        temasDoBanco.forEach(tema => {
+            if (!listaConteudos.includes(tema)) {
+                listaConteudos.push(tema);
+            }
+        });
+    }
+
+    function salvarNoLocalStorage() {
+        const estado = { bancoFases: bancoFases, listaConteudos: listaConteudos };
+        localStorage.setItem('gincana_historica_dados', JSON.stringify(estado));
+    }
+
+    function carregarDoLocalStorage() {
+        const dadosSalvos = localStorage.getItem('gincana_historica_dados');
+        if (dadosSalvos) {
+            try {
+                const estado = JSON.parse(dadosSalvos);
+                if (estado.bancoFases && estado.listaConteudos) {
+                    bancoFases = estado.bancoFases;
+                    listaConteudos = estado.listaConteudos;
+                    return;
+                }
+            } catch (e) { console.error("Erro ao carregar dados", e); }
+        }
+        inicializarConteudos();
+    }
+
+    function mudarTela(idTela) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(idTela).classList.add('active');
+        if(idTela !== 'screen-game') clearInterval(cronometro);
+    }
+
+    function voltarParaMenu() {
+        mudarTela('screen-menu');
+    }
+
+    function abrirSelecaoConteudo() {
+        if(listaConteudos.length === 0) {
+            alert("Nenhum conteúdo cadastrado! Crie temas e desafios no editor.");
+            return;
+        }
+        mudarTela('screen-selecao');
+        const container = document.getElementById('container-botoes-conteudo');
+        container.innerHTML = "";
+
+        listaConteudos.forEach(tema => {
+            const btn = document.createElement('button');
+            btn.className = "btn-main btn-orange";
+            btn.innerHTML = `📚 ${tema}`;
+            btn.onclick = () => iniciarJogoPorConteudo(tema);
+            container.appendChild(btn);
+        });
+    }
+
+    function iniciarJogoPorConteudo(temaSelecionado) {
+        fasesDoJogoAtual = bancoFases.filter(fase => (fase.conteudo || "Geral") === temaSelecionado);
+        
+        if (fasesDoJogoAtual.length === 0) {
+            alert(`O tema "${temaSelecionado}" foi criado, mas ainda não possui nenhuma fase cadastrada no editor!`);
+            return;
+        }
+
+        faseAtual = 0;
+        placar.A = 0; placar.B = 0; placar.C = 0; placar.D = 0;
+        document.getElementById('pts-A').innerText = 0;
+        document.getElementById('pts-B').innerText = 0;
+        document.getElementById('pts-C').innerText = 0;
+        document.getElementById('pts-D').innerText = 0;
+        
+        mudarTela('screen-game');
+        carregarFase();
+    }
+
+    function atualizarExibicaoVidas() {
+        vidasDisplay.innerText = "❤️".repeat(vidas) + "🖤".repeat(2 - vidas);
+    }
+
+    function iniciarTimer() {
+        clearInterval(cronometro);
+        tempoRestante = 60;
+        timerDisplay.innerText = `⏱️ ${tempoRestante}s`;
+        timerDisplay.style.background = "#fceae9";
+
+        cronometro = setInterval(() => {
+            if (!jogoAtivo) return;
+            tempoRestante--;
+            timerDisplay.innerText = `⏱️ ${tempoRestante}s`;
+
+            if (tempoRestante <= 0) {
+                clearInterval(cronometro);
+                jogoAtivo = false;
+                
+                // Realiza a checagem visual para pontuação do professor
+                const cardsNaTela = [...timeline.querySelectorAll('.event-card')];
+                cardsNaTela.forEach((card, index) => {
+                    const ordemCorreta = parseInt(card.getAttribute('data-ordem'));
+                    if (ordemCorreta === index) {
+                        card.classList.remove('error-border');
+                        card.classList.add('success-border');
+                        if (!card.querySelector('.ano-revelado')) {
+                            const badge = document.createElement('span');
+                            badge.classList.add('ano-revelado');
+                            badge.innerText = card.getAttribute('data-ano');
+                            card.insertBefore(badge, card.firstChild);
+                        }
+                    } else {
+                        card.classList.remove('success-border');
+                        card.classList.add('error-border');
+                    }
+                });
+
+                bloquearCards();
+                feedback.innerHTML = "⏰ Tempo esgotado!<br>Professor, distribua os pontos de acordo com os acertos visíveis.";
+                feedback.style.color = "var(--error)";
+                document.getElementById('btn-gabarito').style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    function bloquearCards() {
+        const cards = document.querySelectorAll('.event-card');
+        cards.forEach(card => {
+            card.setAttribute('draggable', 'false');
+            card.style.cursor = 'default';
+        });
+        btnValidar.disabled = true;
+    }
+
+    function embravalhar(array) {
+        return array.map(a => ({ sort: Math.random(), value: a }))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map(a => a.value);
+    }
+
+    function carregarFase() {
+        jogoAtivo = true;
+        vidas = 2;
+        feedback.innerHTML = "";
+        timeline.innerHTML = "";
+        btnValidar.disabled = false;
+        document.getElementById('btn-gabarito').style.display = 'none';
+        
+        atualizarExibicaoVidas();
+        const dados = fasesDoJogoAtual[faseAtual];
+        
+        document.getElementById('fase-id').innerText = ` ${faseAtual + 1}/${fasesDoJogoAtual.length}`;
+        document.getElementById('pergunta-campo').innerText = dados.pergunta;
+        document.getElementById('dificuldade-campo').innerText = `${dados.nivel} (+${dados.pontos} pts p/ card)`;
+
+        document.getElementById('btn-voltar').disabled = faseAtual === 0;
+        document.getElementById('btn-avancar').disabled = faseAtual === fasesDoJogoAtual.length - 1;
+
+        const eventosEmbaralhados = embravalhar([...dados.eventos]);
+        eventosEmbaralhados.forEach(evento => {
+            const card = document.createElement('div');
+            card.classList.add('event-card');
+            card.setAttribute('draggable', 'true');
+            card.setAttribute('data-ordem', evento.ordem);
+            card.setAttribute('data-ano', evento.ano);
+            
+            card.innerHTML = `
+                <div class="event-title">${evento.titulo}</div>
+                <div class="event-desc">${evento.desc}</div>
+            `;
+            timeline.appendChild(card);
+        });
+
+        adicionarEventosDragAndDrop();
+        iniciarTimer();
+    }
+
+    function mudarFase(direcao) {
+        faseAtual += direcao;
+        if (faseAtual >= 0 && faseAtual < fasesDoJogoAtual.length) {
+            carregarFase();
+        }
+    }
+
+    function adicionarPontos(time) {
+        const pontosAAdicionar = fasesDoJogoAtual[faseAtual].pontos;
+        placar[time] += pontosAAdicionar;
+        document.getElementById(`pts-${time}`).innerText = placar[time];
+    }
+
+    function diminuirPontos(time) {
+        placar[time] -= 1;
+        document.getElementById(`pts-${time}`).innerText = placar[time];
+    }
+
+    function verificarOrdem() {
+        if (!jogoAtivo) return;
+
+        const cardsNaTela = [...timeline.querySelectorAll('.event-card')];
+        let acertouTudo = true;
+
+        cardsNaTela.forEach((card, index) => {
+            const ordemCorreta = parseInt(card.getAttribute('data-ordem'));
+            const ano = card.getAttribute('data-ano');
+            
+            if (ordemCorreta === index) {
+                card.classList.remove('error-border');
+                card.classList.add('success-border');
+                card.setAttribute('draggable', 'false'); // Trava o card que está correto
+                card.style.cursor = 'default';
+                if (!card.querySelector('.ano-revelado')) {
+                    const badge = document.createElement('span');
+                    badge.classList.add('ano-revelado');
+                    badge.innerText = ano;
+                    card.insertBefore(badge, card.firstChild);
+                }
+            } else {
+                card.classList.remove('success-border');
+                card.classList.add('error-border');
+                acertouTudo = false;
+            }
+        });
+
+        if (acertouTudo) {
+            clearInterval(cronometro);
+            jogoAtivo = false;
+            feedback.innerHTML = "🏆 Resposta 100% correta! Adicione a pontuação total ao time!";
+            feedback.style.color = "var(--success)";
+            timerDisplay.style.background = "#e8f8f5";
+            bloquearCards();
+        } else {
+            vidas--;
+            atualizarExibicaoVidas();
+            if (vidas <= 0) {
+                clearInterval(cronometro);
+                jogoAtivo = false;
+                bloquearCards();
+                feedback.innerHTML = "💔 Chances esgotadas!<br>Professor, distribua os pontos de acordo com os cards travados no local correto.";
+                feedback.style.color = "var(--error)";
+                document.getElementById('btn-gabarito').style.display = 'block';
+            } else {
+                feedback.innerHTML = `❌ Ordem incorreta! Você perdeu 1 vida. Restam ${vidas}.`;
+                feedback.style.color = "var(--error)";
+            }
+        }
+    }
+
+    function mostrarGabarito() {
+        const cardsNaTela = [...timeline.querySelectorAll('.event-card')];
+        cardsNaTela.sort((a, b) => parseInt(a.getAttribute('data-ordem')) - parseInt(b.getAttribute('data-ordem')));
+        
+        timeline.innerHTML = "";
+        cardsNaTela.forEach((card) => {
+            card.classList.remove('error-border');
+            card.classList.add('success-border');
+            if (!card.querySelector('.ano-revelado')) {
+                const badge = document.createElement('span');
+                badge.classList.add('ano-revelado');
+                badge.innerText = card.getAttribute('data-ano');
+                card.insertBefore(badge, card.firstChild);
+            }
+            timeline.appendChild(card);
+        });
+        
+        feedback.innerHTML = "💡 Ordem Cronológica Correta Revelada! Pronto para a explicação.";
+        feedback.style.color = "var(--primary)";
+        document.getElementById('btn-gabarito').style.display = 'none';
+    }
+
+function adicionarEventosDragAndDrop() {
+        const cards = document.querySelectorAll('.event-card');
+        cards.forEach(card => {
+            card.addEventListener('dragstart', (e) => { 
+                if(jogoAtivo && card.getAttribute('draggable') === 'true') {
+                    card.classList.add('dragging'); 
+                } else {
+                    e.preventDefault();
+                }
+            });
+            card.addEventListener('dragend', () => card.classList.remove('dragging'));
+            card.addEventListener('touchstart', handleTouchStart, { passive: false });
+            card.addEventListener('touchmove', handleTouchMove, { passive: false });
+        });
+
+        timeline.addEventListener('dragover', e => {
+            e.preventDefault();
+            if (!jogoAtivo) return;
+            const cardArrastando = document.querySelector('.dragging');
+            if(!cardArrastando) return;
+            
+            reorganizarCards(e.clientY, cardArrastando);
+        });
+    }
+
+    let activeTouchCard = null;
+    function handleTouchStart(e) { 
+        if (!jogoAtivo || this.getAttribute('draggable') === 'false') return; 
+        activeTouchCard = this; 
+        this.classList.add('dragging'); 
+    }
+    
+    function handleTouchMove(e) {
+        if (!jogoAtivo || !activeTouchCard) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        reorganizarCards(touch.clientY, activeTouchCard);
+    }
+    
+    document.addEventListener('touchend', () => { 
+        if (activeTouchCard) { 
+            activeTouchCard.classList.remove('dragging'); 
+            activeTouchCard = null; 
+        } 
+    });
+
+    // NOVA FÍSICA: Ancora os cards verdes e faz os vermelhos fluírem pelos buracos
+    function reorganizarCards(y, cardArrastando) {
+        const todosCards = [...timeline.querySelectorAll('.event-card')];
+        const travados = [];
+        const livres = [];
+
+        // 1. Separa quem está travado (verde) de quem está livre (vermelho/cinza)
+        todosCards.forEach((card) => {
+            if (card.classList.contains('success-border')) {
+                travados.push({ 
+                    element: card, 
+                    index: parseInt(card.getAttribute('data-ordem')) 
+                });
+            } else {
+                livres.push(card);
+            }
+        });
+
+        // 2. Tira o card que o aluno está arrastando da lista provisória
+        const livresSemArrastando = livres.filter(c => c !== cardArrastando);
+
+        // 3. Acha em qual posição livre o mouse/dedo do aluno está agora
+        const elementoDepois = livresSemArrastando.reduce((maisProximo, filho) => {
+            const box = filho.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > maisProximo.offset) {
+                return { offset: offset, element: filho };
+            } else {
+                return maisProximo;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+
+        // 4. Insere o card arrastando na nova posição APENAS entre os livres
+        if (elementoDepois == null) {
+            livresSemArrastando.push(cardArrastando);
+        } else {
+            const insertIndex = livresSemArrastando.indexOf(elementoDepois);
+            livresSemArrastando.splice(insertIndex, 0, cardArrastando);
+        }
+
+        // 5. Remonta a linha do tempo completa
+        const novaOrdem = new Array(todosCards.length);
+
+        // Primeiro, finca os cards verdes nas posições corretas (ancoragem)
+        travados.forEach(item => {
+            novaOrdem[item.index] = item.element;
+        });
+
+        // Depois, preenche os "buracos" restantes com os cards livres que foram reordenados
+        let livreIndex = 0;
+        for (let i = 0; i < novaOrdem.length; i++) {
+            if (novaOrdem[i] === undefined) {
+                novaOrdem[i] = livresSemArrastando[livreIndex];
+                livreIndex++;
+            }
+        }
+
+        // 6. Atualiza a tela suavemente apenas se a ordem realmente mudou
+        let mudou = false;
+        for (let i = 0; i < novaOrdem.length; i++) {
+            if (todosCards[i] !== novaOrdem[i]) {
+                mudou = true;
+                break;
+            }
+        }
+
+        if (mudou) {
+            novaOrdem.forEach(card => timeline.appendChild(card));
+        }
+    }
+    function construirFormularioEventos() {
+        const container = document.getElementById('eventos-editor-container');
+        container.innerHTML = "";
+        for(let i = 0; i < 4; i++) {
+            container.innerHTML += `
+                <div class="event-editor-card">
+                    <strong style="color:var(--accent); font-size:0.85rem">EVENTO Posição ${i+1} (Mais antigo para o mais novo)</strong>
+                    <div class="event-editor-grid" style="margin-top:5px;">
+                        <div class="form-group">
+                            <label>Ano:</label>
+                            <input type="number" id="edit-ano-${i}" class="form-control" placeholder="Ex: 1789">
+                        </div>
+                        <div class="form-group">
+                            <label>Título:</label>
+                            <input type="text" id="edit-titulo-${i}" class="form-control" placeholder="Nome do Evento">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Breve Descrição:</label>
+                        <input type="text" id="edit-desc-${i}" class="form-control" placeholder="O que aconteceu?">
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function abrirEditor() {
+        construirFormularioEventos();
+        atualizarFiltrosNoEditor(); 
+        atualizarSelectEditor();     
+        mudarTela('screen-editor');
+    }
+
+    function criarNovoConteudoLista() {
+        const campoNome = document.getElementById('novo-conteudo-nome');
+        const nomeTema = campoNome.value.trim();
+
+        if (!nomeTema) {
+            alert("Por favor, digite o nome do conteúdo!");
+            return;
+        }
+        if (listaConteudos.includes(nomeTema)) {
+            alert("Este conteúdo já existe na sua lista!");
+            return;
+        }
+
+        listaConteudos.push(nomeTema);
+        campoNome.value = ""; 
+
+        salvarNoLocalStorage(); 
+        atualizarSelectExportarMenu();
+        atualizarFiltrosNoEditor();
+        
+        document.getElementById('edit-conteudo').value = nomeTema;
+        alert(`Tema "${nomeTema}" criado com sucesso!`);
+    }
+
+    function atualizarFiltrosNoEditor() {
+        const selectFiltro = document.getElementById('select-conteudo-filtro-editor');
+        const valorSalvoFiltro = selectFiltro.value || "Todos";
+        const selectEditConteudo = document.getElementById('edit-conteudo');
+        const valorSalvoEdit = selectEditConteudo.value || "";
+
+        let htmlFiltro = '<option value="Todos">✨ Ver Todos os Conteúdos</option>';
+        listaConteudos.forEach(tema => { htmlFiltro += `<option value="${tema}">📚 ${tema}</option>`; });
+        selectFiltro.innerHTML = htmlFiltro;
+        if(listaConteudos.includes(valorSalvoFiltro) || valorSalvoFiltro === "Todos") selectFiltro.value = valorSalvoFiltro;
+
+        let htmlEdit = '';
+        listaConteudos.forEach(tema => { htmlEdit += `<option value="${tema}">${tema}</option>`; });
+        selectEditConteudo.innerHTML = htmlEdit;
+        if(listaConteudos.includes(valorSalvoEdit)) selectEditConteudo.value = valorSalvoEdit;
+    }
+
+    function atualizarSelectEditor() {
+        const filtroAtivo = document.getElementById('select-conteudo-filtro-editor').value;
+        const selectFase = document.getElementById('select-fase-editor');
+        selectFase.innerHTML = "";
+
+        let contadorFaseInterna = 1;
+        bancoFases.forEach((fase, idx) => {
+            const temaFase = fase.conteudo || "Geral";
+            if (filtroAtivo === "Todos" || temaFase === filtroAtivo) {
+                const resumo = `[${temaFase}] Desafio ${contadorFaseInterna}: ${fase.pergunta.substring(0, 35)}...`;
+                selectFase.innerHTML += `<option value="${idx}">${resumo}</option>`;
+                contadorFaseInterna++;
+            }
+        });
+
+        if (selectFase.options.length === 0) selectFase.innerHTML = `<option value="">Nenhum desafio neste tema...</option>`;
+        carregarFaseNoFormulario();
+    }
+
+    function deletarConteudoInteiro() {
+        const temaSelecionado = document.getElementById('select-conteudo-filtro-editor').value;
+        
+        if (temaSelecionado === "Todos" || !temaSelecionado) {
+            alert("Por favor, selecione um tema específico no filtro para excluir.");
+            return;
+        }
+
+        if (confirm(`⚠️ ATENÇÃO!\nTem certeza que deseja excluir o tema "${temaSelecionado}" e TODOS os desafios associados a ele?\n\nEsta ação não poderá ser desfeita.`)) {
+            
+            listaConteudos = listaConteudos.filter(t => t !== temaSelecionado);
+            bancoFases = bancoFases.filter(fase => (fase.conteudo || "Geral") !== temaSelecionado);
+            
+            salvarNoLocalStorage();
+            atualizarSelectExportarMenu();
+            atualizarFiltrosNoEditor();
+            atualizarSelectEditor();
+            
+            alert(`O tema "${temaSelecionado}" foi excluído com sucesso!`);
+        }
+    }
+
+    function carregarFaseNoFormulario() {
+        const idx = document.getElementById('select-fase-editor').value;
+        if(idx === "" || !bancoFases[idx]) return;
+
+        const fase = bancoFases[idx];
+        document.getElementById('edit-conteudo').value = fase.conteudo || "Geral";
+        document.getElementById('edit-pergunta').value = fase.pergunta;
+        document.getElementById('edit-nivel').value = fase.nivel;
+        document.getElementById('edit-pontos').value = fase.pontos;
+
+        const eventosOrdenados = [...fase.eventos].sort((a,b) => a.ordem - b.ordem);
+        for(let i = 0; i < 4; i++) {
+            if(eventosOrdenados[i]) {
+                document.getElementById(`edit-ano-${i}`).value = eventosOrdenados[i].ano;
+                document.getElementById(`edit-titulo-${i}`).value = eventosOrdenados[i].titulo;
+                document.getElementById(`edit-desc-${i}`).value = eventosOrdenados[i].desc;
+            } else {
+                document.getElementById(`edit-ano-${i}`).value = "";
+                document.getElementById(`edit-titulo-${i}`).value = "";
+                document.getElementById(`edit-desc-${i}`).value = "";
+            }
+        }
+    }
+
+    function prepararNovaFase() {
+        const filtroAtual = document.getElementById('select-conteudo-filtro-editor').value;
+        if (filtroAtual !== "Todos") document.getElementById('edit-conteudo').value = filtroAtual;
+        
+        document.getElementById('edit-pergunta').value = "";
+        document.getElementById('edit-nivel').value = "Fácil";
+        document.getElementById('edit-pontos').value = 1;
+        for(let i = 0; i < 4; i++) {
+            document.getElementById(`edit-ano-${i}`).value = "";
+            document.getElementById(`edit-titulo-${i}`).value = "";
+            document.getElementById(`edit-desc-${i}`).value = "";
+        }
+        document.getElementById('select-fase-editor').value = "";
+        alert("Pronto para criar uma nova fase!");
+    }
+
+    function salvarAlteracoesFase() {
+        const idx = document.getElementById('select-fase-editor').value;
+        const temaSelecionado = document.getElementById('edit-conteudo').value;
+        
+        const novaFase = {
+            conteudo: temaSelecionado,
+            pergunta: document.getElementById('edit-pergunta').value.trim(),
+            nivel: document.getElementById('edit-nivel').value,
+            pontos: parseInt(document.getElementById('edit-pontos').value) || 1,
+            eventos: []
+        };
+
+        if(!novaFase.pergunta) { alert("Preencha o enunciado!"); return; }
+
+        for(let i = 0; i < 4; i++) {
+            const ano = document.getElementById(`edit-ano-${i}`).value;
+            const titulo = document.getElementById(`edit-titulo-${i}`).value.trim();
+            const desc = document.getElementById(`edit-desc-${i}`).value.trim();
+
+            if(!ano || !titulo || !desc) { alert(`Preencha o Evento ${i+1}`); return; }
+
+            novaFase.eventos.push({
+                id: "cust_" + Date.now() + "_" + i,
+                ano: parseInt(ano),
+                titulo: titulo,
+                desc: desc,
+                ordem: i
+            });
+        }
+
+        if(idx === "") {
+            bancoFases.push(novaFase);
+        } else {
+            bancoFases[idx] = novaFase;
+        }
+        
+        salvarNoLocalStorage(); 
+        atualizarSelectExportarMenu();
+        atualizarFiltrosNoEditor();
+        atualizarSelectEditor();
+        alert("Desafio salvo com sucesso e gravado no dispositivo!");
+    }
+
+    function deletarFaseAtual() {
+        const idx = document.getElementById('select-fase-editor').value;
+        if(idx === "") { alert("Nenhum desafio selecionado."); return; }
+        
+        if(confirm("Deseja mesmo excluir este desafio?")) {
+            bancoFases.splice(idx, 1);
+            salvarNoLocalStorage();
+            atualizarSelectExportarMenu();
+            atualizarFiltrosNoEditor();
+            atualizarSelectEditor();
+            alert("Removido!");
+        }
+    }
+
+    function atualizarSelectExportarMenu() {
+        const selectExportar = document.getElementById('select-exportar-conteudo');
+        if (!selectExportar) return;
+        let html = '<option value="Tudo">📦 Exportar Tudo (Todos os Temas)</option>';
+        listaConteudos.forEach(tema => {
+            html += `<option value="${tema}">📚 Apenas: ${tema}</option>`;
+        });
+        selectExportar.innerHTML = html;
+    }
+
+    function exportarBancoJSON() {
+        const temaExportar = document.getElementById('select-exportar-conteudo').value;
+        let fasesFiltradas = bancoFases;
+        let conteudosFiltrados = listaConteudos;
+
+        if (temaExportar !== "Tudo") {
+            fasesFiltradas = bancoFases.filter(f => (f.conteudo || "Geral") === temaExportar);
+            conteudosFiltrados = [temaExportar];
+        }
+
+        const pacoteDados = {
+            versao: "2.0",
+            listaConteudos: conteudosFiltrados,
+            bancoFases: fasesFiltradas
+        };
+
+        const blob = new Blob([JSON.stringify(pacoteDados, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", url);
+        
+        const nomeArquivo = temaExportar === "Tudo" ? "todos_os_desafios.json" : `desafios_${temaExportar.toLowerCase().replace(/\s+/g, '_')}.json`;
+        downloadAnchor.setAttribute("download", nomeArquivo);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        URL.revokeObjectURL(url);
+    }
+
+    function importarBancoJSON(event) {
+        const arquivo = event.target.files[0];
+        if (!arquivo) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+                
+                if (dados && dados.bancoFases && Array.isArray(dados.bancoFases)) {
+                    dados.listaConteudos.forEach(t => {
+                        if (!listaConteudos.includes(t)) listaConteudos.push(t);
+                    });
+                    const temasImportados = dados.listaConteudos;
+                    bancoFases = bancoFases.filter(fase => !temasImportados.includes(fase.conteudo || "Geral"));
+                    bancoFases = bancoFases.concat(dados.bancoFases);
+                } 
+                else if (Array.isArray(dados)) {
+                    bancoFases = dados;
+                    inicializarConteudos();
+                } else {
+                    alert("Formato inválido.");
+                    return;
+                }
+
+                salvarNoLocalStorage(); 
+                atualizarSelectExportarMenu();
+                document.getElementById('file-status').innerText = `✅ Banco atualizado!`;
+                alert(`Sucesso! Desafios carregados e mesclados.`);
+            } catch (err) {
+                alert("Erro ao decodificar o arquivo.");
+            }
+        };
+        reader.readAsText(arquivo);
+    }
+
+    window.onload = () => { 
+        carregarDoLocalStorage(); 
+        atualizarSelectExportarMenu(); 
+        mudarTela('screen-menu'); 
+    };
+</script>
+<footer>
+    <p style="text-align: center; font-size: 0.8em; color: #555; margin-top: 20px;">
+        Copyright &copy; 2026 Profº Edimar Coscolin. Todos os direitos reservados.
+    </p>
+</footer>
+</body>
+</html>
