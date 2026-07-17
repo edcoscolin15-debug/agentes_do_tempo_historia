@@ -23,6 +23,7 @@ Qualquer violação destes termos constitui infração de direitos autorais (Lei
 
 Para dúvidas ou permissões especiais, entre em contato através do e-mail: [edimar010@hotmail.com]
 
+GUIA PRÁTICO DE USO
 
 Este é o seu Guia Prático: Agentes do Tempo Pro. Este roteiro foi desenhado para que você domine todas as funcionalidades, garantindo que suas aulas sejam dinâmicas e que seus dados estejam sempre seguros.
 1. Painel Inicial (Menu Principal)
