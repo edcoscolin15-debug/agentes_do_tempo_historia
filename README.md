@@ -1,6 +1,6 @@
-==========================================================================
+
 TERMOS DE USO E LICENÇA DE USO NÃO COMERCIAL
-==========================================================================
+
 Projeto: Jogos Pedagógicos Gratuitos
 Autor: Edimar Coscolin
 Licença: Creative Commons Atribuição-NãoComercial-SemDerivações 4.0 (CC BY-NC-ND 4.0)
