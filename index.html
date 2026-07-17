@@ -374,10 +374,74 @@ Para dúvidas ou permissões especiais, entre em contato através do e-mail: [ed
         .btn-nav:disabled { background-color: #d5dbdb; cursor: not-allowed; }
         .btn-orange { background-color: var(--accent); }
         .btn-green { background-color: var(--success); }
+        .btn-blue { background-color: #2980b9; }
         
         #feedback { text-align: center; margin-top: 10px; font-weight: bold; font-size: 1.05rem; min-height: 25px; line-height: 1.4; }
         .success-border { border-color: var(--success) !important; background-color: #e8f8f5 !important;}
         .error-border { border-color: var(--error) !important; background-color: #fceae9 !important;}
+
+        /* ESTILOS DOS MODAIS (TERMOS E GUIA) */
+        .modal-container {
+            display: none; 
+            position: fixed; 
+            z-index: 9999; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(3px);
+        }
+        .modal-conteudo-box {
+            background-color: var(--card-bg);
+            margin: 5% auto; 
+            padding: 30px; 
+            border-radius: 12px;
+            width: 90%; 
+            max-width: 800px;
+            max-height: 85vh; 
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            color: var(--text);
+            text-align: left;
+        }
+        .modal-conteudo-box h2, .modal-conteudo-box h3 {
+            color: var(--primary);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .modal-conteudo-box h2 { margin-top: 0; font-size: 1.5rem; }
+        .modal-conteudo-box ul {
+            list-style-type: none;
+            padding-left: 10px;
+            margin-bottom: 15px;
+        }
+        .modal-conteudo-box li { margin-bottom: 10px; }
+        .modal-conteudo-box a { color: #3498db; text-decoration: none; font-weight: bold; }
+        .modal-conteudo-box a:hover { text-decoration: underline; }
+        
+        .fechar-modal-x {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .fechar-modal-x:hover { color: var(--error); }
+        
+        /* Estilo para o bloco de código do Prompt da IA */
+        .prompt-box {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            margin-top: 10px;
+            border-left: 5px solid var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -392,6 +456,12 @@ Para dúvidas ou permissões especiais, entre em contato através do e-mail: [ed
                 <button class="btn-main btn-green" onclick="mudarTela('screen-intro')">🎮 Jogar</button>
                 <button class="btn-main btn-orange" onclick="abrirEditor()">🛠️ Criar ou Alterar Desafios</button>
                 
+                <!-- BOTOES DE TERMOS E GUIA -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn-main" style="background-color: #34495e;" id="btnAbrirTermos">⚖️ Termos de Uso</button>
+                    <button class="btn-main btn-blue" id="btnAbrirGuia">📖 Guia Prático</button>
+                </div>
+
                 <div style="background: #eef2f3; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 6px; margin-top: 5px;">
                     <label style="font-size: 0.85rem; font-weight: bold; color: var(--primary); text-align: left;">📥 Exportar Dados para Backup:</label>
                     <select id="select-exportar-conteudo" class="select-box" style="padding: 6px; font-size: 0.9rem;"></select>
@@ -599,6 +669,150 @@ Para dúvidas ou permissões especiais, entre em contato através do e-mail: [ed
         </div>
     </div>
 
+</div>
+
+<!-- MODAL DE TERMOS DE USO -->
+<div id="modalTermos" class="modal-container">
+    <div class="modal-conteudo-box">
+        <span class="fechar-modal-x">&times;</span>
+        
+        <h2>🕹️ Jogos Pedagógicos em HTML - Aulas de História</h2>
+        <p>Bem-vindo ao repositório de jogos educativos! Este projeto reúne diversas atividades interativas (Escape Room, Quiz, Tabuleiro, Campo minado, Agentes do Tempo) desenvolvidas para tornar o ensino de História mais dinâmico e envolvente, voltado especialmente para alunos do 6º ao 9º ano.</p>
+
+        <h3>🎮 Sobre os Projetos</h3>
+        <p>Estes materiais foram criados com foco na imersão dos alunos em grandes temas e narrativas (como a Revolução Francesa, Guerra Civil Inglesa, entre outros), utilizando escolhas narrativas, mecânicas de RPG e desafios visuais. Todo o código foi construído utilizando HTML, CSS e JavaScript.</p>
+
+        <h3>🚀 Como Utilizar em Sala de Aula</h3>
+        <p>Para utilizar estes jogos com seus alunos, você não precisa baixar nenhum código.<br>Basta acessar os links hospedados e compartilhar com a turma:</p>
+        <ul>
+            <li><a href="https://edcoscolin15-debug.github.io/campo_minado_historia/" target="_blank">[Campo Minado]</a></li>
+            <li><a href="https://edcoscolin15-debug.github.io/escape-rom-historia/" target="_blank">[Escape Rom]</a></li>
+            <li><a href="https://edcoscolin15-debug.github.io/agentes_do_tempo_historia/" target="_blank">[Agentes do Tempo]</a></li>
+            <li><a href="https://edcoscolin15-debug.github.io/tabuleiro_historia/" target="_blank">[Tabuleiro]</a></li>
+            <li><a href="https://edcoscolin15-debug.github.io/quiz_historia/" target="_blank">[Quiz]</a></li>
+        </ul>
+
+        <h3>⚖️ Termos de Uso e Licenciamento (Atenção)</h3>
+        <p>Todo este material foi desenvolvido com muito esforço e é disponibilizado de forma 100% gratuita para fins pedagógicos e educacionais.</p>
+        
+        <p><strong>O que é PERMITIDO:</strong></p>
+        <ul>
+            <li>✅ Utilizar os jogos em sala de aula (projetores, laboratórios, lousas digitais).</li>
+            <li>✅ Compartilhar o link original do repositório ou do jogo com outros professores e alunos.</li>
+        </ul>
+
+        <p><strong>O que é PROIBIDO:</strong></p>
+        <ul>
+            <li>❌ Vender, alugar, sublicenciar ou cobrar qualquer tipo de acesso a este material.</li>
+            <li>❌ Hospedar este código em sites de terceiros com intuito de gerar receita (paywalls, anúncios, etc.).</li>
+            <li>❌ Alterar a estrutura do código para criar obras derivadas destinadas à distribuição.</li>
+            <li>❌ Remover os créditos de autoria e marcações de propriedade intelectual presentes no código-fonte e na interface.</li>
+        </ul>
+
+        <p><strong>Licença Oficial:</strong><br>
+        Este trabalho está licenciado sob a Licença Creative Commons Atribuição-NãoComercial-SemDerivações 4.0 Internacional (CC BY-NC-ND 4.0).</p>
+        <p>Para ver uma cópia desta licença, visite: <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">http://creativecommons.org/licenses/by-nc-nd/4.0/</a></p>
+
+        <h3>👨‍🏫 Autoria e Contato</h3>
+        <p>Desenvolvido por Edimar Coscolin, Professor de História.<br>
+        Contato / E-mail: <a href="mailto:edimar010@hotmail.com">edimar010@hotmail.com</a></p>
+
+        <button class="btn-main btn-orange fechar-botao-rodape" style="margin-top: 20px;">Fechar Termos</button>
+    </div>
+</div>
+
+<!-- MODAL DO GUIA PRÁTICO -->
+<div id="modalGuia" class="modal-container">
+    <div class="modal-conteudo-box">
+        <span class="fechar-modal-x">&times;</span>
+        
+        <h2>📖 Guia Prático: Agentes do Tempo Pro</h2>
+        <p>Este roteiro foi desenhado para que você domine todas as funcionalidades, garantindo que suas aulas sejam dinâmicas e que seus dados estejam sempre seguros.</p>
+
+        <h3>1. Painel Inicial (Menu Principal)</h3>
+        <p>Ao abrir o arquivo no seu navegador (Chrome ou Edge), você encontrará quatro botões principais:</p>
+        <ul>
+            <li><strong>🎮 Jogar:</strong> Acesso à lista de temas disponíveis para iniciar uma partida.</li>
+            <li><strong>🛠️ Criar ou Alterar Desafios:</strong> Acesso ao "Motor de Criação" (Editor).</li>
+            <li><strong>📥 Exportar Dados:</strong> Painel para gerar seus arquivos de backup.</li>
+            <li><strong>📤 Importar:</strong> Carrega arquivos .json que você criou anteriormente.</li>
+        </ul>
+
+        <h3>2. O Ambiente do Jogo (Em Ação)</h3>
+        <p>Ao iniciar uma partida no seu tablet/celular Android, você verá o seguinte ambiente:</p>
+        <ul>
+            <li><strong>Placar Dinâmico:</strong> Use os botões "+ Pontos" para registrar o progresso dos times A, B, C ou D em tempo real.</li>
+            <li><strong>Cronômetro (60s):</strong> O tempo começa a contar automaticamente. Se chegar a zero, o jogo pausa, o sistema bloqueia as ações e você pode liberar o Gabarito.</li>
+            <li><strong>Vidas (2 Corações):</strong> A cada erro na ordenação, uma vida é perdida. Isso adiciona uma camada de estratégia: os times precisam pensar bem antes de validar.</li>
+            <li><strong>Timeline (Timeline Zone):</strong> Onde os desafios aparecem embaralhados.</li>
+            <li><strong>Usabilidade Android:</strong> Basta tocar e arrastar o card para cima ou para baixo para reordená-los. O sistema foi otimizado para que o toque não falhe.</li>
+            <li><strong>Verificar Resposta:</strong> O botão mágico. Se a ordem estiver correta, os cards ficam verdes e o ano é revelado. Se errada, ficam vermelhos e uma vida é subtraída.</li>
+            <li><strong>Mostrar Ordem Correta:</strong> Só aparece após as vidas acabarem ou o tempo esgotar. É a ferramenta perfeita para a explicação final da matéria.</li>
+        </ul>
+
+        <h3>3. Editor de Conteúdos e Desafios</h3>
+        <p>Aqui é onde você transforma o jogo no que você precisa para sua aula:</p>
+        <ul>
+            <li><strong>Criar Novo Tema:</strong> Digite o nome (ex: "Idade Média") e clique em "Criar Tema". O sistema salvará isso automaticamente.</li>
+            <li><strong>Filtragem Inteligente:</strong> Use o menu suspenso para focar apenas no conteúdo da semana. Isso evita que você precise navegar por dezenas de perguntas antigas.</li>
+            <li><strong>🗑️ Excluir Tema:</strong> Caso precise limpar o ambiente, selecione o tema no filtro e clique no botão "🗑️ Excluir Tema". Atenção: isso apagará o tema e todos os desafios atrelados a ele.</li>
+            <li><strong>Adicionar/Editar Desafios:</strong> Escolha o tema, escreva o enunciado e preencha os 4 campos de eventos em ordem cronológica (sempre da data mais antiga para a mais nova). Clique em "Salvar Alterações". O sistema salvará tudo na memória do navegador do tablet.</li>
+        </ul>
+
+        <h3>4. Exportação e Importação (.json)</h3>
+        <p>Esta é a função que garante que você nunca perca o seu trabalho:</p>
+        <ul>
+            <li><strong>Exportar:</strong> Escolha se quer baixar "Tudo" ou apenas um "Tema Específico". O tablet fará o download de um ficheiro .json. Esse ficheiro é o seu "cartucho de jogo" — pode guardá-lo no Google Drive ou enviar por e-mail.</li>
+            <li><strong>Importar:</strong> Se você for para outra escola ou trocar de tablet, basta clicar em "Importar", selecionar o ficheiro .json e o jogo será montado exatamente como você deixou.</li>
+        </ul>
+
+        <h3>📱 Usabilidade no Android (Tablet ou Celular)</h3>
+        <p>O Agentes do Tempo foi otimizado para o ecossistema Android:</p>
+        <ul>
+            <li><strong>Offline:</strong> Uma vez que você tenha o ficheiro .html no dispositivo, não precisa de internet. A gincana funciona no meio do pátio ou na sala de aula sem sinal.</li>
+            <li><strong>Salvamento Automático (LocalStorage):</strong> Se a bateria acabar ou o navegador fechar, não se preocupe. O Android guarda as alterações na memória interna. Ao reabrir o ficheiro, tudo estará lá.</li>
+            <li><strong>Toque Preciso:</strong> O sistema de arrastar e soltar (Drag and Drop) foi ajustado para telas táteis. Ao tocar no card, ele entra em modo de edição/movimentação; ao soltar, ele fixa na nova posição.</li>
+            <li><strong>Downloads Nativos:</strong> Ao exportar, o Android Chrome tratará o ficheiro como um download legítimo, enviando-o para a pasta "Downloads" do seu tablet, pronta para ser compartilhada.</li>
+        </ul>
+        
+        <p><strong>💡 Dica de mestre:</strong> Mantenha sempre uma cópia dos seus arquivos .json no Google Drive. Assim, se você trocar de tablet, basta fazer o download e importar novamente em menos de 10 segundos!</p>
+
+        <h3>⚠️ ATENÇÃO</h3>
+        <p>O arquivo .html é só o motor do jogo (a estrutura, o visual, as regras). As perguntas que você cria ficam na memória do navegador. E os arquivos .json que você exporta são o seu verdadeiro banco de dados (os cartuchos de jogo) que você guarda para não perder nada, então após criar um tema e os desafios, exporte para sua segurança e importe quando conveniente.</p>
+        <p>Se você quiser que uma pergunta nova faça parte do arquivo .html para sempre (sem precisar importar), aí sim você precisaria abrir o .html no Bloco de Notas e digitar o código lá dentro. Mas, com o sistema de exportar/importar .json que criamos, você não vai precisar mexer em código.</p>
+        <p>Se preferir agilizar a criação de conteúdos (temas) e os desafios, pode solicitar para a IA montar em arquivo JSON (DICA: envie um modelo exportado para a IA analisar a estrutura do código JSON). Após ela montar, basta fazer o download (ou copiar o código e colar em um Bloco de Notas ou NotePad++ e salvar com o nome do “conteúdo.json” seguindo o formato, exemplo IDADE_MEDIA.json).</p>
+        
+        <p>Lembre de solicitar os critérios:<br>
+        - Dificuldades misturadas (fácil, média e difícil).<br>
+        - Todas valem 1 ponto. (ou pontuar de acordo com o nível de dificuldade, porém toda dificuldade valer 1 torna mais justo)<br>
+        - Ordem totalmente aleatória.</p>
+
+        <h3>🤖 Prompt para a IA:</h3>
+        <p>Copie e cole o texto abaixo no ChatGPT ou Gemini para gerar novas perguntas automaticamente:</p>
+        
+        <div class="prompt-box">Aja como um especialista em desenvolvimento de jogos educacionais. Preciso que crie um novo arquivo JSON para o jogo 'Agentes do Tempo', seguindo rigorosamente a estrutura do arquivo.
+
+Requisitos:
+- Tema da atividade: [INSIRA O TEMA AQUI, EX: Independência do Brasil]
+- Quantidade de perguntas: [INSIRA A QUANTIDADE, EX: 24]
+- Estrutura: O JSON deve conter os campos versao, listaConteudos e o array bancoFases. Cada item em bancoFases deve ter: conteudo, pergunta, nivel, pontos e um array de eventos.
+- Regra de Eventos: Cada evento dentro do array eventos deve conter obrigatoriamente: id (formato único, ex: 'id_1'), ano, titulo, desc (descrição detalhada) e ordem (índice numérico sequencial).
+- Nível de dificuldade: Equilibre entre Fácil, Médio e Difícil para os itens do bancoFases.
+
+Formato de Saída:
+- Forneça apenas o código JSON pronto para ser copiado.
+- Não escreva introduções, explicações ou comentários fora do código.
+- Garanta que o JSON esteja sintaticamente correto, com todas as vírgulas e chaves fechadas corretamente, pronto para ser importado no meu projeto.</div>
+
+        <p><strong>Dicas para melhores resultados:</strong></p>
+        <ul>
+            <li><strong>Customização:</strong> Quando for usar o prompt, substitua o que está entre colchetes pelos dados do seu próximo desafio histórico.</li>
+            <li><strong>Se o tema for complexo:</strong> Se você precisar que a IA crie os eventos baseados em fatos reais de um período, adicione ao prompt: "Utilize fatos históricos reais e precisos para compor os eventos e as descrições de cada fase do tema [INSIRA O TEMA AQUI]."</li>
+            <li><strong>Validação:</strong> Se a IA gerar um código muito longo e ele parecer cortado, basta digitar "Continue de onde parou" ou "Forneça o JSON completo sem truncar".</li>
+        </ul>
+
+        <button class="btn-main btn-orange fechar-botao-rodape" style="margin-top: 20px;">Fechar Guia Prático</button>
+    </div>
 </div>
 
 <script>
@@ -1337,6 +1551,39 @@ function adicionarEventosDragAndDrop() {
         };
         reader.readAsText(arquivo);
     }
+
+    // --- LÓGICA DOS MODAIS (TERMOS E GUIA) ---
+    const modalTermos = document.getElementById("modalTermos");
+    const modalGuia = document.getElementById("modalGuia");
+    
+    // Funções de Abrir
+    if (document.getElementById("btnAbrirTermos")) {
+        document.getElementById("btnAbrirTermos").onclick = function() { modalTermos.style.display = "block"; }
+    }
+    if (document.getElementById("btnAbrirGuia")) {
+        document.getElementById("btnAbrirGuia").onclick = function() { modalGuia.style.display = "block"; }
+    }
+    
+    // Função unificada para fechar todos os modais
+    function fecharModais() {
+        modalTermos.style.display = "none";
+        modalGuia.style.display = "none";
+    }
+
+    // Atribuindo o fechamento aos "X" do topo
+    const botoesFecharX = document.querySelectorAll(".fechar-modal-x");
+    botoesFecharX.forEach(btn => { btn.onclick = fecharModais; });
+
+    // Atribuindo o fechamento aos botões inferiores
+    const botoesFecharRodape = document.querySelectorAll(".fechar-botao-rodape");
+    botoesFecharRodape.forEach(btn => { btn.onclick = fecharModais; });
+    
+    // Fecha clicando fora da caixa branca
+    window.addEventListener('click', function(event) {
+        if (event.target == modalTermos || event.target == modalGuia) {
+            fecharModais();
+        }
+    });
 
     window.onload = () => { 
         carregarDoLocalStorage(); 
